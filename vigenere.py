@@ -16,7 +16,6 @@ def index_of_coincidence(text: str, probable_key_length: int) -> float:
 
 
 def vigenere(n:int, stripped_cipher:str, cipher:str)->str:
-    index_of_coincidence(stripped_cipher, 12)
     # looks like 12 is a probable key length. Let's try to decrypt it using frequency analysis.
     prob = [0.082, 0.015, 0.028, 0.043, 0.127, 0.022, 0.020, 0.061, 0.070, 0.002, 0.008, 0.040, 0.024, 0.067, 0.075, 0.019, 0.001, 0.060, 0.063, 0.091, 0.028, 0.010, 0.024, 0.001, 0.020, 0.001]
     # the above are the frequencies
@@ -59,7 +58,7 @@ def vigenere(n:int, stripped_cipher:str, cipher:str)->str:
         else:
             decrypted_text += cipher[i]
     # print(decrypted_text)
-    append_to_file(f"./vigenere{key_length}.txt", decrypted_text)
+    append_to_file(f"./vigenere_cipher{n}{key_length}.txt", decrypted_text)
     print(f"Probable key: {key}")
 
 
@@ -68,8 +67,7 @@ def main():
     i=2
     cipher = load_file(f"./cipher{i}.txt")
     stripped_cipher = strip_non_letters(cipher)
-
-    # with an ic of 0.064, it is likely a permutation cipher.
+    index_of_coincidence(stripped_cipher, 12)
 
     vigenere(i, stripped_cipher, cipher)
     print(cipher)
