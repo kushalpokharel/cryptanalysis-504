@@ -40,3 +40,8 @@ def write_to_file(file_name:str, data:str):
     file = open(file_name, 'w')
     file.write(data)
     file.close()
+
+def append_to_file(file_name:str, data:str):
+    file = open(file_name, 'a')
+    file.write(data)
+    file.close()
