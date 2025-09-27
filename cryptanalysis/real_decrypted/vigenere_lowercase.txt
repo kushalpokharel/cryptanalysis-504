@@ -1,0 +1,49 @@
+key: slcbozqhgrut / after correction: frhfbptlrxxn
+for the last twenty years, the public gave credit for the discovery to
+martin hellman, a professor at stanford university, and two graduate
+students who worked with him at the time, ralph merkle and whitfield
+diffie. they started publishing their work in nineteen seventy six.
+
+three professors at the massachusetts institute of technology at the
+time, ron rivest, adi shamir and len adleman soon followed with another
+similar approach known by their initials, rsa, which went on to become
+one of the dominant solutions used on the internet.
+
+before public key cryptography, anyone who wanted to use a secret code
+needed to arrange for both sides to have a copy of the key used to
+scramble the data, a problem that requires either trusted couriers or
+advance meetings. pkc, as it is sometimes known, erased this problem by
+making it possible for two people, or more properly their computers, to
+agree upon a key by performing some complicated mathematics. there is
+no publicly known way for an eavesdropper to pick up the key by
+listening in.
+
+the new document details how three employees of the british government
+discovered the same approach several years earlier, but kept it a
+secret for reasons of national security. a spokesman for the british
+government's gchq, said that the document's release is part of a
+"pan-governmental drive for openness" pushed by the labor party.
+
+the document describing the steps of invention taken by the spies was
+written by james ellis, a mathematician and cryptographer who died less
+than a month ago. in it, ellis describes how he suggested the existence
+of what he called "non-secret encryption" in nineteen seventys.
+
+ellis says that clifford cocks followed with a more practical solution
+in nineteen seventy three that was essentially the same thing as the algorithm published
+by rivest, shamir and adleman. the paper also says that malcolm
+williamson discovered an algorithm in nineteen seventy four that was very similar to the work of diffie and hellman. they did not replicate the work done by merkle and hellman.
+
+in a telephone interview from his office in la jolla, calif., malcolm
+williamson said that he felt bad when others discovered the solution,
+but concluded, "i was working at the british government and that's just
+one of the restrictions you work under when you work for the
+government."
+
+for his part, diffie said in a telephone interview from cirencester,
+england, that he thinks that gchq never realized the deep importance of
+what the mathematicians discovered. he said that he met james ellis
+several years ago and "within an hour of meeting me, ellis said, 'you
+did much more with this than we did.'"  diffie also suggested that the history of ideas is hard to write because many people often find solutions to different problems only to later determine they've discovered the same thing.
+
+

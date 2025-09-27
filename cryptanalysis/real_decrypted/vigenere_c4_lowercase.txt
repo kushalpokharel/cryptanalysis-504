@@ -1,0 +1,22 @@
+key: vigenere
+mathematician to present a proof of the sensitivity conjecture
+
+the sensitivity conjecture has stood as one of the most important, and baffling, open problems in theoretical computer science for nearly three decades. it appears to have finally met its match through work by hao huang, an assistant professor of mathematics at emory university.
+
+huang will present a proof of the sensitivity conjecture during the international conference on random structures and algorithms, set for zurich, switzerland, july fifteenth to nineteenth.
+
+"i've been attacking this problem off and on since twenty-twelve," huang says, "but the key idea emerged for me just about a week ago. i finally identified the right tool to solve it."
+
+huang posted the proof on his home page and it soon generated buzz among mathematicians and computer scientists on social media, who have praised its remarkable conciseness and simplicity.
+
+the sensitivity conjecture relates to boolean data, which maps information into a true-false, or one-zero binary. boolean functions play an important role in complexity theory, as well in the design of circuits and chips for digital computers.
+
+"in mathematics, a boolean function is one of the most basic discrete subjects--just like numbers, graphs or geometric shapes," huang explains.
+
+there are many complexity measures of a boolean function, and almost all of them -- including the decision-tree complexity, the certificate complexity, the randomized query complexity and many others -- are known to be polynomially related. however, there is one unknown case, the so-called sensitivity of a boolean function, which measures how sensitive the function is when changing one input at a time.
+
+in nineteen ninety-four, mathematicians noam nisan and mario szegedy proposed the sensitivity conjecture concerning this unknown case.
+
+"their conjecture says the sensitivity of a boolean function is also polynomially related to the other measures," huang says. "if true, then it would cease to be an outlier and it would join the rest of them."
+
+huang developed an algebraic method for proving the conjecture. "i hope this method might also have some potential to be applied to other combinatorial and complexity problems important to computer science," she says.
