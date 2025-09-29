@@ -1,13 +1,16 @@
 use std::io::Write;
 
+
 use curv::{arithmetic::Converter, BigInt};
 use crate::rsa_parameters::MATRIX;
 
 // use square and multiply to do exponentiation
 fn exponentiation(mut base:BigInt, mut exp:BigInt, modulus:BigInt)->BigInt{
     let zero = BigInt::from(0);
+
     let mut result = BigInt::from(1);
     while exp!=zero{
+        // println!("Bits : {exp}");
         
         if &exp & BigInt::from(1) != zero {
             result*=&base;
@@ -18,6 +21,8 @@ fn exponentiation(mut base:BigInt, mut exp:BigInt, modulus:BigInt)->BigInt{
     }
     result%modulus
 }
+// use square and multiply to do exponentiation
+// (removed) exponentiation_without_modulus was unused; use exponentiation where modulus is required.
 
 fn gcd(mut a:BigInt,mut b:BigInt)->BigInt{
     (a,b) =  if a<b {(b,a)} else {(a,b)};
@@ -29,35 +34,67 @@ fn gcd(mut a:BigInt,mut b:BigInt)->BigInt{
     a
 }
 
+fn get_all_primes_upto_n(n:u64)->Vec<u64>{
+    if n < 2 { return Vec::new(); }
+    // create boolean sieve of size n+1 so indices match numbers
+    let size = (n as usize) + 1;
+    let mut is_prime = vec![true; size];
+    is_prime[0] = false;
+    if size > 1 { is_prime[1] = false; }
+
+    let limit = (n as f64).sqrt() as usize;
+    for i in 2..=limit {
+        if is_prime[i] {
+            // start marking at i*i to avoid redundant work
+            let start = i * i;
+            for j in (start..=n as usize).step_by(i) {
+                is_prime[j] = false;
+            }
+        }
+    }
+
+    let mut primes = Vec::new();
+    for i in 2..=n as usize {
+        if is_prime[i] { primes.push(i as u64); }
+    }
+    primes
+}
+
 // use Pollard's p-1 factorization. Works when p-1 has small prime factors.
 // because we need to sample B such that it is divisible by p-1.
 // construct B by trying to get all the prime factors with correct power involved in p-1.
-fn factorize_n(N:BigInt)->(BigInt, BigInt){
+// Pollard's p-1 factorization (non-interactive). Builds a smoothness
+// bound M by taking prime powers <= bound and computes a^M mod N.
+// If gcd(a^M - 1, N) gives a nontrivial factor we return it. We try a few
+// small bases `a` if needed.
+fn factorize_p_minus_1(n: BigInt, bound: BigInt) -> Option<(BigInt, BigInt)> {
+    // small prime list sufficient for moderate bounds. Extend if needed.
+    let small_primes = get_all_primes_upto_n(5000);
+    // Build exponent M as product of q^{e} where q^{e} <= bound
+    let mut m = BigInt::from(1);
+    for &q in small_primes.iter() {
+        // find largest power q^e <= bound
+        let mut pe: BigInt = BigInt::from(q);
+        while pe <= bound 
+        { 
+            pe = pe*BigInt::from(q); 
+        }
+        m = &m * BigInt::from(pe);
+    }
 
-    let x =  BigInt::from(5);         // this should be a generator of Zq* with high probability
-
-
-    // hypothesis: let's say that prime number decomposition for p-1 was upto 17.
-    // construct B using prime numbers upto 5(hint from use B = 1500 or larger). let's take all the powers that could be
-    // for each of those bases(primes). 
-    let mut B = exponentiation(BigInt::from(2), BigInt::from(10), N.clone());
-    B = B*exponentiation(BigInt::from(3), BigInt::from(10), N.clone());
-    B = B*exponentiation(BigInt::from(5), BigInt::from(10), N.clone());
-
-    let y = exponentiation(x, B, N.clone());
-    println!("{:?}",y);
-
-    let p = gcd(y-1, N.clone());
-    println!("GCD {}", &p);
-
-    // found out that g = 13 is equal to p. divide N by p to get q.
-    // finally get the phi(n) = (p-1)(q-1) and find the inverse of b in 
-    // multiplicative group to get the private exponent.
-
-    let q = N/&p;
-    return(p,q)
-
-
+    println!("M {}", m);
+    for base_u in 2u64..5000u64 {
+        let a = BigInt::from(base_u) % &n;
+        if a == BigInt::from(0) { continue; }
+        let y = exponentiation(a.clone(), m.clone(), n.clone());
+        let d = gcd(y - BigInt::from(1), n.clone());
+        if d > BigInt::from(1) && d < n {
+            let p = d.clone();
+            let qv = n / &p;
+            return Some((p, qv));
+        }
+    }
+    None
 }
 
 fn get_inverse_of_b_in_phi(mut a:BigInt, mut b:BigInt)->(BigInt,BigInt){
@@ -98,9 +135,15 @@ fn decrypt(ciphers:Vec<String>, private_exp:BigInt , modulus:BigInt)->Vec<BigInt
 }
 
 pub fn break_rsa(){
-    let N:BigInt = BigInt::from_hex("68102916241556953901301068745501609390192169871097881297").unwrap();
-    let b:BigInt = BigInt::from_hex("36639088738407540894550923202224101809992059348223191165").unwrap();
-    let (p,q) = factorize_n(N.clone());
+    let n:BigInt = BigInt::from_str_radix("68102916241556953901301068745501609390192169871097881297",10).unwrap();
+    let b:BigInt = BigInt::from_str_radix("36639088738407540894550923202224101809992059348223191165",10).unwrap();
+    let (p,q) = match factorize_p_minus_1(n.clone(), n.clone()) {
+        Some((p,q)) => (p,q),
+        None => panic!("factorization failed with p-1 method; try increasing bound"),
+    };
+    let mut input=String::new();
+    println!("p and q {p} and {q}");
+    std::io::stdin().read_line(&mut input);
     let mut f = std::fs::File::options().append(true).open("/Users/kushalpokharel/Documents/Cryptography/des_and_rsa/src/RSA_plaintext").unwrap();
     let phi = (p-1)*(q-1);
     println!("Phi {:?}", &phi);
@@ -118,8 +161,7 @@ pub fn break_rsa(){
     // raise that number by private_exponent to get the m. ((m^b)^a = m)
 
     let ciphers = read_lines("/Users/kushalpokharel/Documents/Cryptography/des_and_rsa/ciphers-parameter-matrix-2/RSA-ciphertext.txt");
-    let decrypted_plain_numbers = decrypt(ciphers, private_exponent, N);
-    let mut user_input = String::new();
+    let decrypted_plain_numbers = decrypt(ciphers, private_exponent, n.clone());
     for decrypted in decrypted_plain_numbers{
         // for each plain_number, two consecutive numbers give the row and column number in the given matrix
         println!("{decrypted}");
@@ -139,7 +181,7 @@ pub fn break_rsa(){
             let character_from_matrix = string_from_matrix.chars().nth((cn) as usize).unwrap();
             plaintext = plaintext.to_string() + &character_from_matrix.to_string();
             j+=2;
-            std::io::stdin().read_line(&mut user_input);
+            // interactive pause removed for automated runs
             println!("Character {}", character_from_matrix);
 
         }
