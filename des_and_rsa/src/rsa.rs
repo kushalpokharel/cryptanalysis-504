@@ -1,6 +1,5 @@
 use std::io::Write;
 
-
 use curv::{arithmetic::Converter, BigInt};
 use crate::rsa_parameters::MATRIX;
 
@@ -100,7 +99,8 @@ fn factorize_p_minus_1(n: BigInt, bound: BigInt) -> Option<(BigInt, BigInt)> {
 fn get_inverse_of_b_in_phi(mut a:BigInt, mut b:BigInt)->(BigInt,BigInt){
     (a,b) =  if a<b {(b,a)} else {(a,b)};
     let (mut s1, mut s2, mut t1, mut t2) = (BigInt::from(1),BigInt::from(0),BigInt::from(0),BigInt::from(1));
-
+    println!("Setup with a = {a} b = {b} s1 = {s1} s2={s2} t1={t1} t2 = {t2}");
+    let mut i = 0;
     while &b != &BigInt::from(0){
         let c = b.clone();
         let q = &a/&b;
@@ -110,7 +110,8 @@ fn get_inverse_of_b_in_phi(mut a:BigInt, mut b:BigInt)->(BigInt,BigInt){
        (s1,s2) = (s2,temp_s);
        let temp_t = &t1 - &q*&t2;
        (t1,t2) = (t2,temp_t);
-
+        println!("Step {i} with quotient = {q} a = {a} b = {b} s1 = {s1} s2={s2} t1={t1} t2 = {t2}");
+        i+=1
     }
     (s1,t1)
 }
@@ -192,6 +193,8 @@ pub fn break_rsa(){
 
 #[cfg(test)]
 mod tests {
+    use curv::arithmetic::BasicOps;
+
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
@@ -213,14 +216,62 @@ mod tests {
     }
     #[test]
     fn test_extended_eucledian(){
-        let (private_exponent, _) = get_inverse_of_b_in_phi(BigInt::from(240) , BigInt::from(46));
-        println!("{private_exponent}");
+        let a = BigInt::from(6283);
+        let n = BigInt::from(9347);
+        let (_ , mut b) = get_inverse_of_b_in_phi( a.clone(),n.clone() );
+        if b<BigInt::from(0){
+            b = &b + &n;
+        }
+        println!("{b}");
+        let multiplication_result = (&a*&b)%&n;
+        assert_eq!(multiplication_result, BigInt::from(1));
+        println!("Inverse of {a} in {n} is: {b}");
     }
 
-    // #[test]
-    // fn test_matrix(){
-    //     let str = MATRIX[]
-    //     println!("{private_exponent}");
-    // }
+    #[test]
+    fn crt(){
+        // find the inverse of each number in their moduli to get such x that satisfy all the congruences.
+        let n1 = BigInt::from(5*7);
+        let n2 = BigInt::from(9*11);
+        let n3 = BigInt::from(13*17);
+        let x: BigInt = BigInt::from(14);
+        println!("n : {n1} {n2} {n3}");
+
+        let y1 = x.pow(3)%&n1;
+        let y2 = x.pow(3)%&n2;
+        let y3 = x.pow(3)%&n3;
+
+        let n = &n1*&n2*&n3;
+        
+        let (_ , mut inv1) = get_inverse_of_b_in_phi( (&n2*&n3)%&n1, n1.clone());
+        let (_ , mut inv2) = get_inverse_of_b_in_phi( (&n1*&n3)%&n2, n2.clone());
+        let (_ , mut inv3) = get_inverse_of_b_in_phi( (&n1*&n2)%&n3, n3.clone());
+
+        println!("xinv1 : {inv1} {inv2} {inv3}");
+
+
+        println!("y : {y1} {y2} {y3}");
+
+        // Y is constructed in such a way that when %n1 it gives y1, when %n2 it gives y2 and similarly y3
+        let mut y = &y1*&n2*&n3*&inv1+&y2*&n1*&n3*&inv2+&y3*&n2*&n1*&inv3;
+        let ymodn1 = &y%&n1;
+        println!("ymodn1: {ymodn1} {:?} {:?}", &y%&n2, &y%&n3 );
+        // With chinese remainder theorem y%n1 should give y1. 
+        assert_eq!((ymodn1+&n1)%&n1, y1);
+
+        // After getting the y in higher modulo, get the cube root of that number in real number which
+        // should be our answer.
+        while &y< &BigInt::from(0){
+            y+=&n;
+        }
+        println!("y : {y} n:{n}");
+
+        let y_string = y.to_str_radix(10);
+        println!("ystring {y_string}");
+        let y_64 = u64::from_str_radix(&y_string, 10).unwrap();
+        let cube_root_of_y = f64::powf(y_64 as f64, 1.0/3.0);
+        println!("cube root of y {cube_root_of_y}");
+        assert_eq!(BigInt::from(cube_root_of_y.round() as u64), x);
+    }
     
 }
