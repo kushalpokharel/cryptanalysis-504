@@ -5,7 +5,7 @@ use curv::{arithmetic::Converter, BigInt};
 use crate::rsa_parameters::MATRIX;
 
 // use square and multiply to do exponentiation
-fn exponentiation(mut base:BigInt, mut exp:BigInt, modulus:BigInt)->BigInt{
+pub fn exponentiation(mut base:BigInt, mut exp:BigInt, modulus:BigInt)->BigInt{
     let zero = BigInt::from(0);
 
     let mut result = BigInt::from(1);
@@ -24,7 +24,7 @@ fn exponentiation(mut base:BigInt, mut exp:BigInt, modulus:BigInt)->BigInt{
 // use square and multiply to do exponentiation
 // (removed) exponentiation_without_modulus was unused; use exponentiation where modulus is required.
 
-fn gcd(mut a:BigInt,mut b:BigInt)->BigInt{
+pub fn gcd(mut a:BigInt,mut b:BigInt)->BigInt{
     (a,b) =  if a<b {(b,a)} else {(a,b)};
     while &b != &BigInt::from(0){
         let c = b.clone();
