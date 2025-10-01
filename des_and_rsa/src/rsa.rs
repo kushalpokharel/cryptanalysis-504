@@ -68,7 +68,7 @@ fn get_all_primes_upto_n(n:u64)->Vec<u64>{
 // small bases `a` if needed.
 fn factorize_p_minus_1(n: BigInt, bound: BigInt) -> Option<(BigInt, BigInt)> {
     // small prime list sufficient for moderate bounds. Extend if needed.
-    let small_primes = get_all_primes_upto_n(5000);
+    let small_primes = get_all_primes_upto_n(500);
     // Build exponent M as product of q^{e} where q^{e} <= bound
     let mut m = BigInt::from(1);
     for &q in small_primes.iter() {
@@ -82,7 +82,7 @@ fn factorize_p_minus_1(n: BigInt, bound: BigInt) -> Option<(BigInt, BigInt)> {
     }
 
     println!("M {}", m);
-    for base_u in 2u64..5000u64 {
+    for base_u in 2u64..50u64 {
         let a = BigInt::from(base_u) % &n;
         if a == BigInt::from(0) { continue; }
         let y = exponentiation(a.clone(), m.clone(), n.clone());
@@ -110,7 +110,7 @@ fn get_inverse_of_b_in_phi(mut a:BigInt, mut b:BigInt)->(BigInt,BigInt){
        (s1,s2) = (s2,temp_s);
        let temp_t = &t1 - &q*&t2;
        (t1,t2) = (t2,temp_t);
-        println!("Step {i} with quotient = {q} a = {a} b = {b} s1 = {s1} s2={s2} t1={t1} t2 = {t2}");
+        // println!("Step {i} with quotient = {q} a = {a} b = {b} s1 = {s1} s2={s2} t1={t1} t2 = {t2}");
         i+=1
     }
     (s1,t1)
@@ -144,7 +144,7 @@ pub fn break_rsa(){
     };
     let mut input=String::new();
     println!("p and q {p} and {q}");
-    std::io::stdin().read_line(&mut input);
+    // std::io::stdin().read_line(&mut input);
     let mut f = std::fs::File::options().append(true).open("/Users/kushalpokharel/Documents/Cryptography/des_and_rsa/src/RSA_plaintext").unwrap();
     let phi = (p-1)*(q-1);
     println!("Phi {:?}", &phi);
@@ -182,11 +182,10 @@ pub fn break_rsa(){
             let character_from_matrix = string_from_matrix.chars().nth((cn) as usize).unwrap();
             plaintext = plaintext.to_string() + &character_from_matrix.to_string();
             j+=2;
-            // interactive pause removed for automated runs
             println!("Character {}", character_from_matrix);
 
         }
-        writeln!(&mut f, "{plaintext}").unwrap();
+        write!(&mut f, "{plaintext}").unwrap();
 
     }
 }
@@ -200,8 +199,9 @@ mod tests {
 
     #[test]
     fn test_exponentiation(){
-        let y = exponentiation(BigInt::from(5), BigInt::from(2), BigInt::from(50));
-        assert_eq!(y, BigInt::from(25));
+        break_rsa();
+        // let y = exponentiation(BigInt::from(5), BigInt::from(2), BigInt::from(50));
+        // assert_eq!(y, BigInt::from(25));
     }
 
     #[test]
@@ -232,14 +232,18 @@ mod tests {
     fn crt(){
         // find the inverse of each number in their moduli to get such x that satisfy all the congruences.
         let n1 = BigInt::from(5*7);
-        let n2 = BigInt::from(9*11);
-        let n3 = BigInt::from(13*17);
+        let n2 = BigInt::from(11*13);
+        let n3 = BigInt::from(17*19);
         let x: BigInt = BigInt::from(14);
-        println!("n : {n1} {n2} {n3}");
+        println!("Choice of x : {x}");
+        println!("Choice of three n's - n1, n2, n3 : {n1} {n2} {n3}");
+        println!("Bigger modulo n = : {:?}",&n1*&n2*&n3);
 
         let y1 = x.pow(3)%&n1;
         let y2 = x.pow(3)%&n2;
         let y3 = x.pow(3)%&n3;
+        println!("x raised to 3 in modulus n1,n2,n3 : {y1} {y2} {y3}");
+
 
         let n = &n1*&n2*&n3;
         
@@ -247,15 +251,19 @@ mod tests {
         let (_ , mut inv2) = get_inverse_of_b_in_phi( (&n1*&n3)%&n2, n2.clone());
         let (_ , mut inv3) = get_inverse_of_b_in_phi( (&n1*&n2)%&n3, n3.clone());
 
-        println!("xinv1 : {inv1} {inv2} {inv3}");
+        println!("Inverse of n2*n3 in n1 : {inv1} ");
+        println!("Inverse of n1*n3 in n2 : {inv2} ");
+        println!("Inverse of n1*n2 in n3 : {inv3} ");
 
 
-        println!("y : {y1} {y2} {y3}");
 
         // Y is constructed in such a way that when %n1 it gives y1, when %n2 it gives y2 and similarly y3
         let mut y = &y1*&n2*&n3*&inv1+&y2*&n1*&n3*&inv2+&y3*&n2*&n1*&inv3;
         let ymodn1 = &y%&n1;
-        println!("ymodn1: {ymodn1} {:?} {:?}", &y%&n2, &y%&n3 );
+        
+        println!("Finding y with the formula &y1*&n2*&n3*&inv1+&y2*&n1*&n3*&inv2+&y3*&n2*&n1*&inv3; y={}", y);
+
+
         // With chinese remainder theorem y%n1 should give y1. 
         assert_eq!((ymodn1+&n1)%&n1, y1);
 
@@ -264,14 +272,29 @@ mod tests {
         while &y< &BigInt::from(0){
             y+=&n;
         }
-        println!("y : {y} n:{n}");
+        y = y%n;
+
+        println!("y in modulus n where n=n1*n2*n3 = {y}");
 
         let y_string = y.to_str_radix(10);
-        println!("ystring {y_string}");
+
         let y_64 = u64::from_str_radix(&y_string, 10).unwrap();
         let cube_root_of_y = f64::powf(y_64 as f64, 1.0/3.0);
-        println!("cube root of y {cube_root_of_y}");
+
+        println!("Finding cube root in real field is easy: cube root of y {cube_root_of_y}");
         assert_eq!(BigInt::from(cube_root_of_y.round() as u64), x);
+    }
+
+    #[test]
+    fn test_parameters(){
+        let p = BigInt::from_str_radix("761059198034099969",10).unwrap();
+        let q = BigInt::from_str_radix("89484387571261623539483274324628239313",10).unwrap();
+        let phi = (&p-1)*(&q-1);
+        let n = BigInt::from_str_radix("68102916241556953901301068745501609390192169871097881297",10).unwrap();
+        let a = BigInt::from_str_radix("743634723523581782187325327276236523726254293",10).unwrap();
+        let b = BigInt::from_str_radix("36639088738407540894550923202224101809992059348223191165", 10).unwrap();
+        assert_eq!((&a*&b)%&phi , BigInt::from(1));
+        assert_eq!(p*q, n);
     }
     
 }

@@ -20,10 +20,10 @@ fn rsa_decryption_exponent(){
     let n = BigInt::from(36581);
     let result = RSA_exponent::rsa_factor(n.clone(), BigInt::from(14039), BigInt::from(4679));
     if result == BigInt::from(-1) || result == BigInt::from(1) || result==BigInt::from(n.clone()){
-        println!("Trivial factors of n are: {result} {:?}", {BigInt::from(36851)/&result});
+        println!("Trivial factors of n are: {result} {:?}", {n/&result});
     }
     else{
-        println!("Two factors of n are: {result} {:?}", {BigInt::from(36851)/&result});
+        println!("Two factors of n are: {result} {:?}", {n/&result});
 
     }
 

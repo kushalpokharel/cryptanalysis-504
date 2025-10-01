@@ -8,7 +8,7 @@ use crate::RSA::{exponentiation, gcd};
 
 pub fn rsa_factor(n:BigInt, a:BigInt, b:BigInt)-> BigInt{
     let mut phi = a*b-1;
-    println!("here {:?}", &phi>>1);
+    // println!("here {:?}", &phi>>1);
     //divide by 2 until we can to get an odd (r)
     while (&phi & BigInt::from(1)) ==BigInt::from(0){
         phi = &phi>>1;
@@ -38,12 +38,11 @@ pub fn rsa_factor(n:BigInt, a:BigInt, b:BigInt)-> BigInt{
             v = exponentiation(v.clone(), BigInt::from(2), n.clone());
 
         }
-        if &v0%&n==BigInt::from(-1){
-            println!("Unable to factorize n as we didn't get the non-trivial factor but -1");
+        println!("{v0}");
+        if (&v0+1)%&n==BigInt::from(-1) {
             return BigInt::from(-1)
         }
         else{
-            println!("We are able to factorize n successfully using random w = {w}");
             return gcd(v0+1, n);
         }
     }
