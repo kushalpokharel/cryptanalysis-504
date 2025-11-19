@@ -140,7 +140,7 @@ pub fn main() {
     for line in lines{
         println!("Line {line}");
         let line_buffer = <Vec<u8>>::from_hex(line).unwrap();
-        let mut line_buffer8:[u8;8] = [0u8;8]; line_buffer8.copy_from_slice(&line_buffer[0..8]);
+        let mut line_buffer8:[u8;8] = [0u8;8]; line_bxuffer8.copy_from_slice(&line_buffer[0..8]);
         let decrypted_text = decrypt_block_msb(&line_buffer8, &round_keys);
         let plaintext = String::from_utf8(decrypted_text.to_vec()).unwrap();
         println!("plaintext: {plaintext}" );

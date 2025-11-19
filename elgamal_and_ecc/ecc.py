@@ -154,7 +154,7 @@ def main():
         shared_key_2 = add_points(shared_key_2, alice_public_key, elliptic_curve_params)
     print(f"Shared key 2: {shared_key_2}")
     assert(shared_key == shared_key_2)
-    
+
 
 if __name__ == "__main__":
     main()
