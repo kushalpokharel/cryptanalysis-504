@@ -165,7 +165,7 @@ pub fn decrypt_merkle_hellman(){
         let mut permuted_bit_string = vec!["0"; private_array.len()];
         cipher = (cipher*&inv)%&M;
         for element in &private_array{
-            println!("cipher {cipher} element {element}");
+            // println!("cipher {cipher} element {element}");
             if cipher>=*element{
                 cipher=cipher-element.clone();
                 bit_string.push("1");
@@ -179,11 +179,12 @@ pub fn decrypt_merkle_hellman(){
 
         // finally get the permutation of the x's arranged in y to permute the bits accordingly 
         // and get the final BigInt from which matrix can be read. from index_array
-
+        print!("[");
         for (idx, (_, b)) in index_array.iter().enumerate(){
-            println!("index array {b}");
+            print!("{b}, ");
             permuted_bit_string[*b]=bit_string[idx];
         }
+        print!("]\n");
         // permuted_bit_string = permuted_bit_string.into_iter().collect::<Vec<&str>>();
         let permuted_bit_string:String = permuted_bit_string.into_iter().collect();
         let mut result = BigInt::from_str_radix(&permuted_bit_string, 2).unwrap().to_string();
@@ -193,8 +194,8 @@ pub fn decrypt_merkle_hellman(){
         }
 
         // given 7 length of plaintext which will be 14 digit with each row-column pair. 
-        if result.len()%2 ==1{
-            result = "0".to_owned()+&result;
+        if result.len() < 14{
+            result = "0".repeat(14 - result.len()) + &result;
         }
         let res:Vec<char> = result.chars().collect();
         let mut i = 0;
